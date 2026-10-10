@@ -4,7 +4,8 @@ from sqlite3 import IntegrityError
 
 from auth import DUMMY_HASH, create_token, current_user, hash_password, verify_password
 from db import Base, engine, get_db
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse
 from models import User
 from schemas import KeyOut, Login, Register, TokenOut
 from sqlalchemy import select
@@ -23,6 +24,19 @@ def b64d(value: str, field: str) -> bytes:
 
 def b64e(value: bytes) -> str:
     return base64.b64encode(value).decode()
+
+
+@app.get("/")
+async def root(request: Request):
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept:
+        return HTMLResponse(f"<h1>Server is running on {request.base_url}</h1>")
+    return JSONResponse({"running": True})
+
+
+@app.get("/check-starch")
+async def info():
+    return JSONResponse({"version": "0.1.0", "app": "starch"})
 
 
 @app.post("/register", status_code=201)
