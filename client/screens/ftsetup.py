@@ -61,7 +61,8 @@ class Setup(StarchScreen):
             return
 
         self.notify("Connected")
-        self.main.server_ip = event.worker.result
+        self.main.config.server_ip = event.worker.result
+        self.main.config.save()
         self.app.pop_screen()
 
 
