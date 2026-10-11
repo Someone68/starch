@@ -8,20 +8,10 @@ from textual.containers import Center, CenterMiddle, Vertical
 from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Input, Label, Static
 from textual.worker import Worker, WorkerState
-from util import normalize_url
+from util import StarchScreen, normalize_url
 
 
-class SignedOut(Screen):
-    def compose(self):
-        yield Header()
-        with Vertical(classes="card"):
-            yield Label("Connected to server:", classes="title")
-            yield Static("You are not signed in.", classes="title")
-            yield Button("Sign in / Register", id="sign-in", variant="primary")
-        yield Footer()
-
-
-class Setup(Screen):
+class Setup(StarchScreen):
     def compose(self):
         yield Header()
         with Center(classes="card"):
@@ -48,8 +38,8 @@ class Setup(Screen):
         self.connect(url)
 
     @work(thread=True, exclusive=True, exit_on_error=False, name="connect")
-    def connect(self, url: str) -> bool:
-        return try_connect(url)
+    def connect(self, url: str) -> str | None:
+        return url if try_connect(url) else None
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         if event.worker.name != "connect":
@@ -71,6 +61,7 @@ class Setup(Screen):
             return
 
         self.notify("Connected")
+        self.main.server_ip = event.worker.result
         self.app.pop_screen()
 
 

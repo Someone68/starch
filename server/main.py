@@ -1,6 +1,5 @@
 import base64
 import binascii
-from sqlite3 import IntegrityError
 
 from auth import DUMMY_HASH, create_token, current_user, hash_password, verify_password
 from db import Base, engine, get_db
@@ -9,6 +8,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from models import User
 from schemas import KeyOut, Login, Register, TokenOut
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 Base.metadata.create_all(engine)
@@ -56,8 +56,8 @@ def register(body: Register, db: Session = Depends(get_db)):
     try:
         db.commit()
     except IntegrityError:
+        db.rollback()
         raise HTTPException(409, "username has already been taken")
-    db.commit()
 
 
 @app.post("/login", response_model=TokenOut)
