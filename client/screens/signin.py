@@ -8,14 +8,11 @@ from util import AUTH_ERRORS, AuthResult, StarchScreen
 
 
 class SignIn(StarchScreen):
-    def on_mount(self) -> None:
-        self.watch(self.main, "server_ip", self._show_server)
-
     def compose(self):
         yield Header()
         with Vertical(classes="card"):
             yield Label(
-                f"Connected to server: {self.main.config.server_ip or 'none'}",
+                f"Connected to server: {self.main.config.active_server or 'none'}",
                 classes="title",
                 id="server",
             )
@@ -26,11 +23,14 @@ class SignIn(StarchScreen):
                 yield Button("Register", id="register", variant="primary")
         yield Footer()
 
-    def _show_server(self, ip: str | None) -> None:
-        self.query_one("#server", Label).update(f"Connected to server: {ip or 'none'}")
+    def on_screen_resume(self) -> None:
+        server = self.main.config.active_server
+        self.query_one("#server", Label).update(
+            f"Connected to server: {server or 'none'}"
+        )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        server = self.main.config.server_ip
+        server = self.main.config.active_server
         username = self.query_one("#username", Input).value
         password = self.query_one("#password", Input).value
         if len(password) < 8:
@@ -90,4 +90,8 @@ class SignIn(StarchScreen):
             return
 
         set_token(result.server, result.username, result.token)
+        acc = self.main.config.servers[result.server]
+        acc.username = result.username
+        self.main.config.save()
         self.notify(f"{result.step.title()} successful", severity="information")
+        self.main.switch_screen("home")

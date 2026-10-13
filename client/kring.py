@@ -13,7 +13,7 @@ def get_private_key(ip: str, username: str) -> str | None:
 
 
 def set_token(ip: str, username: str, password: str) -> None:
-    kr.set_password(SERVICE_NAME, ip + "|" + username, password)
+    kr.set_password(SERVICE_NAME, ip + "|" + username + "|token", password)
 
 
 def set_private_key(ip: str, username: str, private_key: PrivateKey) -> None:

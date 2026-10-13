@@ -5,14 +5,11 @@ from util import StarchScreen
 
 
 class SignedOut(StarchScreen):
-    def on_mount(self) -> None:
-        self.watch(self.main, "server_ip", self._show_server)
-
     def compose(self):
         yield Header()
         with Vertical(classes="card"):
             yield Label(
-                f"Connected to server: {self.main.config.server_ip or 'none'}",
+                f"Connected to server: {self.main.config.active_server or 'none'}",
                 classes="title",
                 id="server",
             )
@@ -20,8 +17,11 @@ class SignedOut(StarchScreen):
             yield Button("Sign in / Register", id="sign-in", variant="primary")
         yield Footer()
 
-    def _show_server(self, ip: str | None) -> None:
-        self.query_one("#server", Label).update(f"Connected to server: {ip or 'none'}")
+    def on_screen_resume(self) -> None:
+        server = self.main.config.active_server
+        self.query_one("#server", Label).update(
+            f"Connected to server: {server or 'none'}"
+        )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "sign-in":
