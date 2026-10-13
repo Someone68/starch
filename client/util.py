@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, cast
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Literal, cast
 from urllib.parse import urlsplit
 
 if TYPE_CHECKING:
@@ -26,3 +27,19 @@ class StarchScreen(Screen):
     @property
     def main(self) -> "Starch":
         return cast("Starch", self.app)
+
+
+@dataclass
+class AuthResult:
+    step: Literal["signin", "register"]
+    status: int
+    server: str
+    username: str
+    token: str | None = None
+
+
+AUTH_ERRORS = {
+    ("signin", 401): "Incorrect username or password.",
+    ("register", 409): "Username has already been taken.",
+    ("register", 422): "Username or password is invalid.",
+}

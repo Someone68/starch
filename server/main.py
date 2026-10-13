@@ -57,7 +57,7 @@ def register(body: Register, db: Session = Depends(get_db)):
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(409, "username has already been taken")
+        raise HTTPException(409, "username taken")
 
 
 @app.post("/login", response_model=TokenOut)

@@ -11,7 +11,11 @@ class SignedOut(StarchScreen):
     def compose(self):
         yield Header()
         with Vertical(classes="card"):
-            yield Label("Connected to server: none", classes="title", id="server")
+            yield Label(
+                f"Connected to server: {self.main.config.server_ip or 'none'}",
+                classes="title",
+                id="server",
+            )
             yield Static("You are not signed in.", classes="title")
             yield Button("Sign in / Register", id="sign-in", variant="primary")
         yield Footer()
